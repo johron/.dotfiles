@@ -102,6 +102,7 @@ in
       kdePackages.kdenlive
       feishin
       google-cloud-sdk
+      flameshot
      ];
 
     pointerCursor = {
@@ -134,6 +135,18 @@ in
           config() {
             "sudo" "$EDITOR" "/etc/nixos/configuration.nix"
           }
+        '';
+      };
+      flameshot = {
+        target = ".config/flameshot/flameshot.ini";
+        text = ''
+          [General]
+          contrastOpacity=188
+          showAbortNotification=false
+          showDesktopNotification=false
+          showStartupLaunchMessage=false
+          savePath=/home/johron/Pictures/Screenshots
+          savePathFixed=true
         '';
       };
     };
@@ -298,6 +311,7 @@ in
           "${super}+d" = "exec discord";
 
           "${super}+v" = "exec cliphist list | rofi -dmenu | cliphist decode | wl-copy";
+          "${super}+Shift+s" = "exec flameshot gui";
         };
 
         window.commands = [
