@@ -112,6 +112,7 @@ in
       flameshot
       hyprpicker
       jetbrains.rust-rover
+      htop
      ];
 
     pointerCursor = {
@@ -176,6 +177,46 @@ in
         text = ''
           default-timeout=5000
         '';
+      };
+      clock = {
+        target = ".config/waybar/clock.sh";
+        text = ''
+        # Generate the formatted date string
+        formatted_date=$(LC_TIME=nb_NO.UTF-8 date +"%H:%M %A, %b %d" | tr '[:upper:]' '[:lower:]' | sed 's/\.//g')
+
+        # Output as JSON for Waybar
+        printf '{"text": "%s"}\n' "$formatted_date"
+        '';
+        executable = true;
+      };
+      memory = {
+        target = ".config/waybar/memory.sh";
+        text = ''
+          free -m | awk '
+          /^Mem:/ {
+              current_gb = $3 / 1024;
+              total_gb = $2 / 1024;
+              printf "{\"text\": \"%.1fG/%.1fG\"}\n", current_gb, total_gb
+          }'
+        '';
+        executable = true;
+      };
+      volume = {
+        target = ".config/waybar/volume.sh";
+        text = ''
+          VOLUME_INFO=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+          VOL_NUM=$(echo "$VOLUME_INFO" | awk '{print $2}')
+          VOL_PERC=$(awk -v n="$VOL_NUM" 'BEGIN {print int(n * 100)}')
+
+          if [[ "$VOLUME_INFO" == *"[MUTED]"* ]]; then
+              RESULT="Muted ($VOL_PERC%)"
+          else
+              RESULT="$VOL_PERC%"
+          fi
+
+          echo "{\"text\": \"$RESULT\"}"
+        '';
+        executable = true;
       };
 
       "/.config/rofi/launchers".source = "${rofiRepo}/files/launchers";
@@ -376,7 +417,7 @@ in
        -b "Exit" "swaymsg exit" \
        -b "Reboot" "reboot"
 
-     exec mpvpaper -o "--loop=inf" ALL /home/johron/Videos/cubebg.mp4
+     #exec mpvpaper -o "--loop=inf" ALL /home/johron/Videos/cubebg.mp4
 
      exec_always {
        systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
@@ -401,11 +442,11 @@ in
       main = {
         position = "bottom";
         layer = "top";
-        height = 28;
+        height = 30;
         spacing = 5;
-        modules-left = [ "sway/workspaces" "sway/mode" "mpris" ];
-        modules-center = [ "clock" ];
-        modules-right = [ "memory" "wireplumber" "sway/language" "idle_inhibitor" "network" "bluetooth" "tray" ];
+        modules-left = [ "custom/block_start" "sway/workspaces" "custom/block_stop" "sway/mode" ];
+        modules-center = [ "custom/block_start" "custom/clock" "custom/block_stop" ];
+        modules-right = [ "custom/block_start" "mpris" "custom/memory" "custom/slash" "custom/volume" "custom/block_stop" "tray" ];
 
         #"mpris" = {
         #  format = "{player_icon} {title} - {artist}";
@@ -421,20 +462,49 @@ in
 
         "mpris" = {
           player = "spotify";
-          format = "󰓇 {artist} - {title}";
-          format-paused = "󰓇 {artist}";
-          max-length = 60;
+          format = "<span color=\"#ACA69E\">mus:</span> {artist} - {title} <span color=\"#272727\">/</span>";
+          format-paused = "<span color=\"#ACA69E\">mus:</span> {artist} <span color=\"#272727\">/</span>";
+          max-length = 200;
         };
 
         "sway/workspaces" = {
-          format = "{icon}";
+          format = "{icon}{name}";
           on-click = "activate";
           icon-size = 10;
           sort-by-number = "true";
+          justify = "right";
+          "format-icons" = {
+            focused = "*";
+            default = "";
+          };
         };
 
-        "clock" = {
-          format = "{:%d.%m.%Y | %H:%M}";
+        #"clock" = {
+        #  #format = "{:%d.%m.%Y | %H:%M}";
+        #  format = "{:%H:%M tirsdag, %b %d}";
+        #};
+
+        "custom/space" = {
+          format = " ";
+        };
+
+        "custom/slash" = {
+          format = "/ ";
+        };
+
+        "custom/block_start" = {
+          format = " [";
+        };
+
+        "custom/block_stop" = {
+          format = "] ";
+        };
+
+        "custom/clock" = {
+          format = "{}";
+          exec = "~/.config/waybar/clock.sh";
+          return-type = "json";
+          restart-interval = 1;
         };
 
         "battery" = {
@@ -444,63 +514,40 @@ in
           format-icons = ["\uf244" "\uf243" "\uf242" "\uf241" "\uf240"];
         };
 
-        "wireplumber" = {
-          format = "󰕾  {volume}%";
-          max-volume = "100";
-          scroll-step = 5;
+        #"wireplumber" = {
+        #  format = "<span color=\"#ACA69E\">vol:</span> {volume}%";
+        #  max-volume = "100";
+        #  scroll-step = 5;
+        #};
+
+        "custom/volume" = {
+          format = "<span color=\"#ACA69E\">vol:</span> {} ";
+          exec = "~/.config/waybar/volume.sh";
+          return-type = "json";
+          restart-interval = 1;
         };
 
-        "memory" = {
-          interval = 30;
-          format = "󰍛  {used:0.1f}G/{total:0.1f}G";
+        "custom/memory" = {
+          format = "<span color=\"#ACA69E\">mem:</span> {} ";
+          exec = "~/.config/waybar/memory.sh";
+          return-type = "json";
+          restart-interval = 1;
         };
 
-        "temperature" = {
-          format = "{temperatureC}°C";
-        };
-
-        "network" = {
-          format = "";
-          format-ethernet = "󰈀";
-          format-wifi = "{icon}";
-          format-disconnected = "󰈂";
-          format-icons = ["󰤟" "󰤢" "󰤥" "󰤨"];
-          tooltip-format-wifi = "{essid} ({signalStrength}%)";
-          tooltip-format-ethernet = "{ifname}";
-          tooltip-format-disconnected = "Disconnected";
-        };
-
-        "bluetooth" = {
-          format = "󰂯";
-          format-disabled = "󰂲";
-          format-connected = "󰂱";
-          tooltip-format = "{controller_alias}\t{controller_address}";
-          tooltip-format-connected = "{controller_alias}\t{controller_address}\n\n{device_enumerate}";
-          tooltip-format-enumerate-connected = "{device_alias}\t{device_address}";
-        };
-
-        "sway/language" = {
-          format = "{short}";
+        "custom/lang" = {
+          format = "<span color=\"#ACA69E\">key:</span> no";
         };
 
         "tray" = {
           icon-size = 16;
           spacing = 16;
         };
-
-        "idle_inhibitor" = {
-          format = "{icon}";
-          format-icons = {
-            activated = "󰅶";
-            deactivated = "󰾪";
-          };
-        };
       };
     };
     style = ''
-      @define-color foreground #eeeeee;
-      @define-color foreground-inactive #aaaaaa;
-      @define-color background #000000;
+      @define-color foreground #ACA69E;
+      @define-color foreground-inactive #ffffff;
+      @define-color background #101010;
 
       * {
         font-family: JetBrainsMono Nerd Font;
@@ -508,7 +555,7 @@ in
       }
 
       #waybar {
-        color: @foreground;
+        color: #ffffff;
         background-color: @background;
       }
 
@@ -516,24 +563,34 @@ in
         background: transparent;
       }
 
+      #custom-slash,
+      #custom-block_start,
+      #custom-block_stop {
+        color: #272727;
+      }
+
       #workspaces button {
+        min-width: 20px;
         padding: 0 0.6em;
         margin: 0 0.2em;
         color: @foreground-inactive;
+
         background: transparent;
         border: none;
         border-bottom: 2px solid transparent;
         border-radius: 0;
+        padding: 0px;
+        margin: 0 5px;
       }
 
       #workspaces button.active,
       #workspaces button.focused {
-        color: @foreground;
-        border-bottom: 2px solid @foreground;
+        color: #ACA69E;
+        /*border-bottom: 2px solid @foreground;*/
       }
 
       #workspaces button.empty {
-        color: @foreground-inactive;
+        color: #ACA69E;
       }
 
       #workspaces button.urgent {
@@ -555,5 +612,20 @@ in
         padding-right: 1em
       }
     '';
+  };
+
+  systemd.user.services.mpvpaper = {
+    Unit = {
+      Description = "Video wallpaper with mpvpaper";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.mpvpaper}/bin/mpvpaper -o '--loop=inf' ALL /home/johron/Videos/cubebg.mp4";
+      Restart = "always";
+    };
+    Install = {
+      WantedBy = [ "sway-session.target" ];
+    };
   };
 }
