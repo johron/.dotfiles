@@ -10,7 +10,7 @@ let
 
   rofiRepo = builtins.fetchTarball {
     url = "https://github.com/johron/adi1090x-rofi/archive/refs/heads/master.tar.gz";
-    sha256 = "182fbvilfj4qvzjdxrkbayiazqw31blb4hzkn583fkxaz4zf2378";
+    sha256 = "14rh0argbl1xdsy8xbs9kdxcl1nbpgxfpi72g6h5ccjgkbqkp9qy";
   };
 
   notwaitaBlackSrc = pkgs.fetchurl {
@@ -133,6 +133,10 @@ in
       bashrc = {
         target = ".bashrc";
         text = ''
+          current_git_branch() {
+            git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+          }
+          PS1='(\[\033[01;94m\]\u\[\033[00;00m\]@\[\033[01;94m\]\h\[\033[00;00m\]:\[\033[01;34m\]\w\[\033[00m\])\[\033[01;32m\]$(current_git_branch)\[\033[00m\]$ '
           alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
           home() {
             cd "$HOME/home-manager"
@@ -407,26 +411,26 @@ in
       workspace 12 output HDMI-A-1
       workspace 13 output HDMI-A-1
 
-     exec wl-paste --watch cliphist store
+      exec wl-paste --watch cliphist store
 
-     seat seat0 xcursor_theme Notwaita-Black 20
+      seat seat0 xcursor_theme Notwaita-Black 20
 
-     # Bind Alt+Shift+e to show a Swaynag exit confirmation
-     bindsym Mod1+Shift+e exec swaynag -t warning \
-       -m "Are you sure you want to exit Sway?" \
-       -b "Exit" "swaymsg exit" \
-       -b "Reboot" "reboot"
+      # Bind Alt+Shift+e to show a Swaynag exit confirmation
+      bindsym Mod1+Shift+e exec swaynag -t warning \
+        -m "Are you sure you want to exit Sway?" \
+        -b "Exit" "swaymsg exit" \
+        -b "Reboot" "reboot"
 
-     #exec mpvpaper -o "--loop=inf" ALL /home/johron/Videos/cubebg.mp4
+      #exec mpvpaper -o "--loop=inf" ALL /home/johron/Videos/cubebg.mp4
 
-     exec_always {
-       systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
-       lxqt-policykit-agent
-       swayidle \
-        timeout 300 'swaylock -f' \
-        timeout 600 'systemctl suspend' \
-        before-sleep 'swaylock -f'
-     }
+      exec_always {
+        systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+        lxqt-policykit-agent
+        swayidle \
+          timeout 300 'swaylock -f' \
+          timeout 600 'systemctl suspend' \
+          before-sleep 'swaylock -f'
+      }
     '';
   };
 
@@ -444,9 +448,9 @@ in
         layer = "top";
         height = 30;
         spacing = 5;
-        modules-left = [ "custom/block_start" "sway/workspaces" "custom/block_stop" "sway/mode" ];
+        modules-left = [ "custom/block_start" "sway/workspaces" "mpris" "custom/block_stop" "sway/mode" ];
         modules-center = [ "custom/block_start" "custom/clock" "custom/block_stop" ];
-        modules-right = [ "custom/block_start" "mpris" "custom/memory" "custom/slash" "custom/volume" "custom/block_stop" "tray" ];
+        modules-right = [ "custom/block_start" "custom/memory" "custom/slash" "custom/volume" "custom/block_stop" "tray" ];
 
         #"mpris" = {
         #  format = "{player_icon} {title} - {artist}";
@@ -462,8 +466,8 @@ in
 
         "mpris" = {
           player = "spotify";
-          format = "<span color=\"#ACA69E\">mus:</span> {artist} - {title} <span color=\"#272727\">/</span>";
-          format-paused = "<span color=\"#ACA69E\">mus:</span> {artist} <span color=\"#272727\">/</span>";
+          format = "<span color=\"#272727\">/</span> <span color=\"#ACA69E\">mus:</span> {artist} - {title}";
+          format-paused = "<span color=\"#272727\">/</span> <span color=\"#ACA69E\">mus:</span> {artist}";
           max-length = 200;
         };
 
@@ -525,7 +529,7 @@ in
           format = "<span color=\"#ACA69E\">vol:</span> {} ";
           exec = "~/.config/waybar/volume.sh";
           return-type = "json";
-          restart-interval = 1;
+          restart-interval = 0;
         };
 
         "custom/memory" = {
