@@ -97,6 +97,7 @@ in
       vscode
       rofi
       nemo
+      lf
       spotify
       playerctl
       gh
