@@ -475,6 +475,7 @@ in
           justify = "right";
           "format-icons" = {
             focused = "*";
+            urgent = "!";
             default = "";
           };
         };
@@ -594,7 +595,7 @@ in
       }
 
       #workspaces button.urgent {
-        color: #c94444;
+        color: #A64443;
       }
 
       #workspaces button:hover {
