@@ -169,6 +169,13 @@ in
           savePathFixed=true
         '';
       };
+      mako = {
+        target = ".config/mako/config";
+        text = ''
+          default-timeout=5000
+        '';
+      };
+
       "/.config/rofi/launchers".source = "${rofiRepo}/files/launchers";
       "/.config/rofi/applets".source   = "${rofiRepo}/files/applets";
       "/.config/rofi/colors".source    = "${rofiRepo}/files/colors";
@@ -309,18 +316,6 @@ in
           "${super}+Shift+9" = "move container to workspace number 19";
           "${super}+Shift+0" = "move container to workspace number 20";
 
-          ## Resize windows with letters
-          #"${mod}+Shift+j" = "resize shrink width 10 px or 10 ppt";
-          #"${mod}+Shift+k" = "resize grow height 10 px or 10 ppt";
-          #"${mod}+Shift+l" = "resize shrink height 10 px or 10 ppt";
-          #"${mod}+Shift+oslash" = "resize grow width 10 px or 10 ppt";
-#
-          ## Resize windows with arrow keys (same actions)
-          #"${mod}+Shift+Left"  = "resize shrink width 10 px or 10 ppt";
-          #"${mod}+Shift+Down"  = "resize grow height 10 px or 10 ppt";
-          #"${mod}+Shift+Up"    = "resize shrink height 10 px or 10 ppt";
-          #"${mod}+Shift+Right" = "resize grow width 10 px or 10 ppt";
-
           # Multimedia
           XF86AudioMute = "exec pactl set-sink-mute @DEFAULT_SINK@ toggle";
           XF86AudioPlay = "exec playerctl play-pause";
@@ -330,7 +325,7 @@ in
           XF86AudioRaiseVolume = "exec pactl set-sink-volume @DEFAULT_SINK@ +5%";
           XF86AudioLowerVolume = "exec pactl set-sink-volume @DEFAULT_SINK@ -5%";
 
-          ## Applications
+          # Applications
           "${super}+q" = "exec firefox";
           "${super}+e" = "exec nemo";
           "${super}+s" = "exec spotify";
@@ -339,6 +334,11 @@ in
           "${super}+v" = "exec cliphist list | rofi -dmenu | cliphist decode | wl-copy";
           "${super}+Shift+s" = "exec flameshot gui";
           "${super}+Shift+c" = "exec hyprpicker --autocopy";
+
+          # Scripts
+          "${mod}+dead_diaeresis" = "exec /storage/Scripts/rofi-audio";
+          "${mod}+Control+a" = "exec /storage/Scripts/toggle-mic-mute";
+          "${mod}+Control+s" = "exec /storage/Scripts/toggle-output-mute";
         };
 
         window.commands = [
@@ -379,6 +379,10 @@ in
      exec_always {
        systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
        lxqt-policykit-agent
+       swayidle \
+        timeout 300 'swaylock -f' \
+        timeout 600 'systemctl suspend' \
+        before-sleep 'swaylock -f'
      }
     '';
   };
