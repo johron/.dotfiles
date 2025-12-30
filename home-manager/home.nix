@@ -28,6 +28,8 @@ in
 {
   nixpkgs.config.allowUnfree = true;
 
+  news.display = "silent";
+
   programs.alacritty = {
     enable = true;
     settings = {
@@ -399,7 +401,7 @@ in
       main = {
         position = "bottom";
         layer = "top";
-        height = 24;
+        height = 28;
         spacing = 5;
         modules-left = [ "sway/workspaces" "sway/mode" "mpris" ];
         modules-center = [ "clock" ];
