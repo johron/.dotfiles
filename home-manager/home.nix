@@ -8,6 +8,11 @@ let
   mod = "Mod1";
   super = "Super";
 
+  rofiRepo = builtins.fetchTarball {
+    url = "https://github.com/johron/adi1090x-rofi/archive/refs/heads/master.tar.gz";
+    sha256 = "182fbvilfj4qvzjdxrkbayiazqw31blb4hzkn583fkxaz4zf2378";
+  };
+
   notwaitaBlackSrc = pkgs.fetchurl {
     url = "https://github.com/ful1e5/notwaita-cursor/releases/download/v1.0.0-alpha1/Notwaita-Black.tar.xz";
     sha256 = "sha256-P/F4NRBqz/6Ws9//qEKMYdqtfG5LdZa6jihqueZnx88==";
@@ -103,6 +108,8 @@ in
       feishin
       google-cloud-sdk
       flameshot
+      hyprpicker
+      jetbrains.rust-rover
      ];
 
     pointerCursor = {
@@ -118,7 +125,7 @@ in
     homeDirectory = "/home/johron";
 
     stateVersion = "25.11";
-    
+
     file = {
       bashrc = {
         target = ".bashrc";
@@ -135,6 +142,19 @@ in
           config() {
             "sudo" "$EDITOR" "/etc/nixos/configuration.nix"
           }
+          nix-update() {
+            set -e
+
+            ORIG_CWD="$(pwd)"
+
+            sudo nix-channel --update
+            cd "$HOME/home-manager"
+            make
+            sudo nixos-rebuild switch
+            flatpak update -y
+            sudo flatpak update -y
+            cd "$ORIG_CWD"
+          }
         '';
       };
       flameshot = {
@@ -149,6 +169,12 @@ in
           savePathFixed=true
         '';
       };
+      "/.config/rofi/launchers".source = "${rofiRepo}/files/launchers";
+      "/.config/rofi/applets".source   = "${rofiRepo}/files/applets";
+      "/.config/rofi/colors".source    = "${rofiRepo}/files/colors";
+      "/.config/rofi/images".source    = "${rofiRepo}/files/images";
+      "/.config/rofi/powermenu".source = "${rofiRepo}/files/powermenu";
+      "/.config/rofi/scripts".source   = "${rofiRepo}/files/scripts";
     };
   };
 
@@ -312,6 +338,7 @@ in
 
           "${super}+v" = "exec cliphist list | rofi -dmenu | cliphist decode | wl-copy";
           "${super}+Shift+s" = "exec flameshot gui";
+          "${super}+Shift+c" = "exec hyprpicker --autocopy";
         };
 
         window.commands = [
@@ -328,6 +355,7 @@ in
     };
     extraConfig = ''
       output * mode 1920x1080@143.981Hz
+
       workspace 1 output DP-2
       workspace 2 output DP-2
       workspace 3 output DP-2
@@ -353,6 +381,12 @@ in
        lxqt-policykit-agent
      }
     '';
+  };
+
+  programs.rofi = {
+    enable = true;
+    package = pkgs.rofi;
+    theme = "launchers/type-4/style-5.rasi";
   };
 
   programs.waybar = {
@@ -385,14 +419,14 @@ in
           format-paused = "󰓇 {artist}";
           max-length = 60;
         };
- 
+
         "sway/workspaces" = {
           format = "{icon}";
           on-click = "activate";
           icon-size = 10;
           sort-by-number = "true";
         };
-        
+
         "clock" = {
           format = "{:%d.%m.%Y | %H:%M}";
         };
