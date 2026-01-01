@@ -36,7 +36,7 @@ in
       cursor = {
         style = {
           shape = "Beam";
-          blinking = "Off";
+          blinking = "On";
         };
       };
       font = {
@@ -114,6 +114,7 @@ in
       hyprpicker
       jetbrains.rust-rover
       htop
+      unzip
      ];
 
     pointerCursor = {
@@ -375,7 +376,7 @@ in
 
           # Applications
           "${super}+q" = "exec firefox";
-          "${super}+e" = "exec nemo";
+          "${super}+e" = "exec alacritty -e bash -c 'lf; exec bash'";
           "${super}+s" = "exec spotify";
           "${super}+d" = "exec discord";
 
@@ -633,5 +634,5 @@ in
     Install = {
       WantedBy = [ "sway-session.target" ];
     };
-  };
+  };  
 }
