@@ -2,15 +2,15 @@
 
 let
   left = "j";
-  down = "l";
   up = "k";
+  down = "l";
   right = "oslash";
   mod = "Mod1";
   super = "Super";
 
   rofiRepo = builtins.fetchTarball {
     url = "https://github.com/johron/adi1090x-rofi/archive/refs/heads/master.tar.gz";
-    sha256 = "14rh0argbl1xdsy8xbs9kdxcl1nbpgxfpi72g6h5ccjgkbqkp9qy";
+    sha256 = "02svplixyy6i3x28qjj0hb7lp4xl42a93iz342vibjz8665ajjwb";
   };
 
   notwaitaBlackSrc = pkgs.fetchurl {
@@ -111,10 +111,10 @@ in
       feishin
       google-cloud-sdk
       flameshot
-      hyprpicker
       jetbrains.rust-rover
       htop
       unzip
+      obsidian
      ];
 
     pointerCursor = {
@@ -258,10 +258,10 @@ in
         modes = {
           resize = {
             # Letters
-            "j" = "resize shrink width 10 px or 10 ppt";
-            "k" = "resize grow height 10 px or 10 ppt";
-            "l" = "resize shrink height 10 px or 10 ppt";
-            "oslash" = "resize grow width 10 px or 10 ppt";
+            ${left} = "resize shrink width 10 px or 10 ppt";
+            ${up} = "resize grow height 10 px or 10 ppt";
+            ${down} = "resize shrink height 10 px or 10 ppt";
+            ${right} = "resize grow width 10 px or 10 ppt";
 
             # Arrow keys
             "Left"  = "resize shrink width 10 px or 10 ppt";
@@ -281,6 +281,8 @@ in
           "${mod}+Return" = "exec alacritty";
           "${super}+l" = "exec swaylock";
           "${mod}+r" = "mode \"resize\"";
+
+          "${mod}+Shift+e" = "exec /home/johron/.config/rofi/powermenu/type-1/powermenu.sh";
 
           "${mod}+h" = "split h";
           "${mod}+v" = "split v";
@@ -376,7 +378,7 @@ in
 
           # Applications
           "${super}+q" = "exec firefox";
-          "${super}+e" = "exec alacritty -e bash -c 'lf; exec bash'";
+          "${super}+e" = "exec nemo";
           "${super}+s" = "exec spotify";
           "${super}+d" = "exec discord";
 
@@ -403,7 +405,8 @@ in
       };
     };
     extraConfig = ''
-      output * mode 1920x1080@143.981Hz
+      output DP-2 pos 0 0 mode 1920x1080@143.981Hz
+      output HDMI-A-1 mode 1920x1080@143.981Hz
 
       workspace 1 output DP-2
       workspace 2 output DP-2
@@ -417,13 +420,15 @@ in
 
       seat seat0 xcursor_theme Notwaita-Black 20
 
-      # Bind Alt+Shift+e to show a Swaynag exit confirmation
-      bindsym Mod1+Shift+e exec swaynag -t warning \
-        -m "Are you sure you want to exit Sway?" \
-        -b "Exit" "swaymsg exit" \
-        -b "Reboot" "reboot"
+      ## Bind Alt+Shift+e to show a Swaynag exit confirmation
+      #bindsym Mod1+Shift+e exec swaynag -t warning \
+      #  -m "Are you sure you want to exit Sway?" \
+      #  -b "Exit" "swaymsg exit" \
+      #  -b "Reboot" "reboot"
 
       #exec mpvpaper -o "--loop=inf" ALL /home/johron/Videos/cubebg.mp4
+
+      exec swaybg -i "$HOME/Pictures/Backgrounds/reef-5120x2880.png" -m fill
 
       exec_always {
         systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
@@ -448,6 +453,7 @@ in
       main = {
         position = "bottom";
         layer = "top";
+        exclusive = "false";
         height = 30;
         spacing = 5;
         modules-left = [ "custom/block_start" "sway/workspaces" "mpris" "custom/block_stop" "sway/mode" ];
@@ -621,18 +627,18 @@ in
     '';
   };
 
-  systemd.user.services.mpvpaper = {
-    Unit = {
-      Description = "Video wallpaper with mpvpaper";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-    Service = {
-      ExecStart = "${pkgs.mpvpaper}/bin/mpvpaper -o '--loop=inf' ALL /home/johron/Videos/cubebg.mp4";
-      Restart = "always";
-    };
-    Install = {
-      WantedBy = [ "sway-session.target" ];
-    };
-  };  
+  #systemd.user.services.mpvpaper = {
+  #  Unit = {
+  #    Description = "Video wallpaper with mpvpaper";
+  #    After = [ "graphical-session.target" ];
+  #    PartOf = [ "graphical-session.target" ];
+  #  };
+  #  Service = {
+  #    ExecStart = "${pkgs.mpvpaper}/bin/mpvpaper -o '--loop=inf' ALL /home/johron/Videos/cubebg.mp4";
+  #    Restart = "always";
+  #  };
+  #  Install = {
+  #    WantedBy = [ "sway-session.target" ];
+  #  };
+  #};  
 }
