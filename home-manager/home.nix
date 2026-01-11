@@ -115,6 +115,10 @@ in
       htop
       unzip
       obsidian
+      vlc
+      davinci-resolve
+      birdfont
+      inkscape
      ];
 
     pointerCursor = {
@@ -428,7 +432,7 @@ in
 
       #exec mpvpaper -o "--loop=inf" ALL /home/johron/Videos/cubebg.mp4
 
-      exec swaybg -i "$HOME/Pictures/Backgrounds/reef-5120x2880.png" -m fill
+      exec swaybg -i "$HOME/Pictures/Backgrounds/reef-1920x1080-2.png" -m fill
 
       exec_always {
         systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
@@ -612,6 +616,10 @@ in
 
       #workspaces button:hover {
         color: @foreground;
+      }
+
+      #mode {
+        color: #A64443;
       }
 
       #memory,
