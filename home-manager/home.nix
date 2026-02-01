@@ -27,7 +27,7 @@ let
 in
 {
   nixpkgs.config.allowUnfree = true;
-
+  
   news.display = "silent";
 
   programs.alacritty = {
@@ -108,10 +108,13 @@ in
       nomacs
       mpvpaper
       kdePackages.kdenlive
+      kdePackages.ark
+      kdePackages.dolphin
       feishin
       google-cloud-sdk
       flameshot
       jetbrains.rust-rover
+      jetbrains.idea
       htop
       unzip
       obsidian
@@ -119,6 +122,20 @@ in
       davinci-resolve
       birdfont
       inkscape
+      hyprpicker
+      gammastep
+      geoclue2
+      ninja
+      f3d
+      godot-mono
+      lutris
+      prismlauncher
+      wine
+      geogebra6
+      ida-free
+      gdb
+      flatpak-xdg-utils
+      #winboat
      ];
 
     pointerCursor = {
@@ -142,7 +159,10 @@ in
           current_git_branch() {
             git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
           }
-          PS1='(\[\033[01;94m\]\u\[\033[00;00m\]@\[\033[01;94m\]\h\[\033[00;00m\]:\[\033[01;34m\]\w\[\033[00m\])\[\033[01;32m\]$(current_git_branch)\[\033[00m\]$ '
+          shlvl_prompt() {
+            (( SHLVL > 1 )) && printf '(%d)' "$SHLVL"
+          }
+          PS1='$(shlvl_prompt)(\[\033[01;94m\]\u\[\033[00;00m\]@\[\033[01;94m\]\h\[\033[00;00m\]:\[\033[01;34m\]\w\[\033[00m\])\[\033[01;32m\]$(current_git_branch)\[\033[00m\]$ '
           alias dotfiles='git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
           home() {
             cd "$HOME/home-manager"
@@ -438,8 +458,8 @@ in
         systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
         lxqt-policykit-agent
         swayidle \
-          timeout 300 'swaylock -f' \
-          timeout 600 'systemctl suspend' \
+          timeout 600 'swaylock -f' \
+          timeout 1200 'systemctl suspend' \
           before-sleep 'swaylock -f'
       }
     '';
