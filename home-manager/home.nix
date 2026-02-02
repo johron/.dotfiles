@@ -135,7 +135,6 @@ in
       ida-free
       gdb
       flatpak-xdg-utils
-      #winboat
      ];
 
     pointerCursor = {
@@ -187,6 +186,9 @@ in
             flatpak update -y
             sudo flatpak update -y
             cd "$ORIG_CWD"
+          }
+          jclone() {
+            git clone https://github.com/johron/$1
           }
         '';
       };
@@ -392,13 +394,13 @@ in
           "${super}+Shift+0" = "move container to workspace number 20";
 
           # Multimedia
-          XF86AudioMute = "exec pactl set-sink-mute @DEFAULT_SINK@ toggle";
+          XF86AudioMute = "exec wpctl set-mute @DEFAULT_SINK@ toggle";
           XF86AudioPlay = "exec playerctl play-pause";
           XF86AudioPause = "exec playerctl pause";
           XF86AudioNext = "exec playerctl next";
           XF86AudioPrev = "exec playerctl previous";
-          XF86AudioRaiseVolume = "exec pactl set-sink-volume @DEFAULT_SINK@ +5%";
-          XF86AudioLowerVolume = "exec pactl set-sink-volume @DEFAULT_SINK@ -5%";
+          XF86AudioRaiseVolume = "exec wpctl set-volume @DEFAULT_SINK@ 5%+";
+          XF86AudioLowerVolume = "exec wpctl set-volume @DEFAULT_SINK@ 5%-";
 
           # Applications
           "${super}+q" = "exec firefox";
